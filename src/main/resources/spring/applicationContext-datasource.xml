@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context" xmlns:p="http://www.springframework.org/schema/p"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.1.xsd
+
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.1.xsd">
+
+    <!-- 数据库配置文件位置 -->
+
+    <!--<context:property-placeholder location="classpath:config/config.properties"/>-->
+
+    <!-- 数据库配置文件位置 PROD-->
+    <!--<context:property-placeholder location="classpath:properties/jdbc_prod.properties"/>-->
+
+    <!-- 配置dbcp数据源 -->
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource"
+          init-method="init" destroy-method="close">
+        <property name="driverClassName" value="${jdbc.driverClassName}"/>
+        <property name="url" value="${jdbc.url}"/>
+        <property name="username" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+
+        <!-- 最大连接池数量 -->
+        <property name="maxActive" value="${jdbc.maxActive}"/>
+        <!-- 初始化时建立物理连接的个数 -->
+        <property name="initialSize" value="${jdbc.initialSize}"/>
+        <!--获取连接时最大等待时间，单位毫秒  -->
+        <property name="maxWait" value="${jdbc.maxWait}"/>
+        <!-- 最小连接池数量 -->
+        <property name="minIdle" value="${jdbc.minIdle}"/>
+        <!-- Destroy线程会检测连接的间隔时间 -->
+        <property name="timeBetweenEvictionRunsMillis" value="${jdbc.timeBetweenEvictionRunsMillis}"/>
+        <!-- Destory线程中如果检测到当前连接的最后活跃时间和当前时间的差值大于minEvictableIdleTimeMillis，则关闭当前连接-->
+        <property name="minEvictableIdleTimeMillis" value="${jdbc.minEvictableIdleTimeMillis}"/>
+        <!-- 用来检测连接是否有效的sql，要求是一个查询语句。 -->
+        <property name="validationQuery" value="${jdbc.validationQuery}"/>
+        <!-- 建议配置为true，不影响性能，并且保证安全性。申请连接的时候检测，如果空闲时间大于timeBetweenEvictionRunsMillis，执行validationQuery检测连接是否有效。 -->
+        <property name="testWhileIdle" value="${jdbc.testWhileIdle}"/>
+        <!-- 申请连接时执行validationQuery检测连接是否有效，做了这个配置会降低性能。 -->
+        <property name="testOnBorrow" value="${jdbc.testOnBorrow}"/>
+        <!-- 归还连接时执行validationQuery检测连接是否有效，做了这个配置会降低性能 -->
+        <property name="testOnReturn" value="${jdbc.testOnReturn}"/>
+        <!-- -是否缓存preparedStatement，也就是PSCache -->
+        <property name="poolPreparedStatements" value="${jdbc.poolPreparedStatements}"/>
+        <property name="maxPoolPreparedStatementPerConnectionSize"
+                  value="${jdbc.maxPoolPreparedStatementPerConnectionSize}"/>
+        <!-- 配置监控统计拦截的filters -->
+        <property name="filters" value="${jdbc.filters}"/>
+        <property name="connectionProperties" value="config.decrypt=false"/>
+    </bean>
+
+    <!-- Mybatis相关配置 -->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="configLocation" value="classpath:xml/mybatis-config.xml"/>
+        <property name="typeAliasesPackage" value="com.study.dao"/>
+        <property name="mapperLocations" value="classpath:mapper/*Mapper.xml"/>
+    </bean>
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.study.dao"/>
+    </bean>
+
+    <!-- 配置SQLSession模板 -->
+    <bean id="sqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate" scope="prototype">
+        <constructor-arg index="0" ref="sqlSessionFactory"/>
+    </bean>
+
+    <!--<bean id="sqlSessionTemplate" class="com.uxue.api.util.ObservableSqlSessionTemplate" scope="prototype">-->
+    <!--<constructor-arg index="0" ref="sqlSessionFactory"/>-->
+    <!--</bean>-->
+
+    <!-- dev -->
+    <!--<bean id="jedisConnFactory"-->
+    <!--class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory"-->
+    <!--p:hostName="10.2.175.27" p:port="6379" p:usePool="true"/>-->
+    <!-- dev -->
+
+    <!--prod-->
+    <!--<bean id="jedisConnFactory"-->
+    <!--class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory"-->
+    <!--p:hostName="172.18.8.160" p:port="6379" p:usePool="true"/>-->
+    <!-- prod -->
+    <!-- redis template definition -->
+    <!--<bean id="redisTemplate"-->
+    <!--class="org.springframework.data.redis.core.RedisTemplate"-->
+    <!--p:connectionFactory-ref="jedisConnFactory"/>-->
+
+</beans>
